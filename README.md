@@ -1,54 +1,62 @@
 # Restaurantes
 Crear una WebApp que consulte los restaurantes de Estados Unidos
 
-class restaurant
-  COUNTRIES = %w(AE AW CA CH CN CR GP HK KN KY MC MO MX MY PT SA SG SV US VI)
-  
-  include Mongoid: :Document
-  include Mongoid: :Timestamps
-  include Mongoid: :Pagination
-  
-  field :restaurant_id, type: Integer
-  field :name
-  field :address
-  field :city
-  field :state
-  field :postal_code
-  field :metro_name
-  field :phone
-  field :country
-  field :latitude,  type: Float
-  field :longitude, type: Float
-  field :location,  type: Array
-  field :price, type: Integer
-  
-  validates :resturan_id, precense: true, uniqueness: true
-  validates :name,        precense: true
-  
-  index restarant_id: 1
-  index city: 1
-  index state: 1
-  index postal_code: 1
-  
-  def as_json(options = {})
-    RestaurantSerializer.new(self, options).to_hash
-  end
-  
-  def self.uniques_countries
-    Restaurant.collection.distinct("country").compact.sort
-  end
-  
-   def self.unique_cities
-    Restaurant.collection.distinct("city").compact.sort
-  end
-  
-  def self.by_id(id)
-    Restaurant.where(restaurant_id: id).first
-  end
+GET /api/stats
 
-  def self.import_records(results)
-    results.each_slice(100) do |batch|
-      collection.insert(batch)
-    end
-  end
-end
+{
+  "countries": 20,
+  "cities": 2700,
+  "restaurants": 25000
+}
+
+GET /api/cities
+
+{
+  "count": 1234,
+  "cities": [
+    "Chicago",
+    "San Francisco",
+    "New York"
+  ]
+}
+
+GET /api/restaurants
+
+price - Price range for the restaurant. Values: 1-4.
+name - Name of the restaurant
+address - Address line. Should not contain state or city or zip.
+state - State code (ex.: IL)
+city - City name (ex.: Chicago)
+zip - Zipcode (ex: 60601)
+country - Country code (ex: US)
+page - Page (default: 1)
+per_page - Entries per Page, can be one of [5, 10, 15, 25, 50, 100] (default: 25)
+
+{
+  "count": 521,
+  "per_page": 25,
+  "current_page": 1,
+  "restaurants": [ ... ]
+}
+
+GET /api/restaurants/:id
+
+{
+  "id": 107257,
+  "name": "Las Tablas Colombian Steak House",
+  "address": "2942 N Lincoln Ave",
+  "city": "Chicago",
+  "state": "IL",
+  "area": "Chicago / Illinois",
+  "postal_code": "60657",
+  "country": "US",
+  "phone": "7738712414",
+  "lat": 41.935137,
+  "lng": -87.662815,
+  "price": 2,
+  "reserve_url": "http://www.opentable.com/single.aspx?rid=107257",
+  "mobile_reserve_url": "http://mobile.opentable.com/opentable/?restId=107257",
+  "image_url": "https://www.opentable.com/img/restimages/107257.jpg"
+}
+
+
